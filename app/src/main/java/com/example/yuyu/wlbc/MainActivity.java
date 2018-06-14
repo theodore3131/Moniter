@@ -14,8 +14,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private AlertDialog alert = null;
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     final private int RED = 110;
     final private int GREEN = 111;
+    private ArrayList<String> data = new ArrayList<String>(){{add("温度:20℃");add("PM2.5:低");add("氧浓度:20％");}};
 
 
     @Override
@@ -35,6 +41,21 @@ public class MainActivity extends AppCompatActivity {
         mContext = MainActivity.this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, data);
+        final ListView listView = (ListView) findViewById(R.id.main);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                            @Override
+                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                            }
+                                        }
+
+        );
+
 
         builder = new AlertDialog.Builder(mContext);
 
