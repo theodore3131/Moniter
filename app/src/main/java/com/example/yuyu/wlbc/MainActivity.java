@@ -2,6 +2,7 @@ package com.example.yuyu.wlbc;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +11,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -20,6 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext;
     private boolean[] checkItems;
     private View view_custom;
+
+    final private int RED = 110;
+    final private int GREEN = 111;
 
 
     @Override
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(view_custom);
         builder.setCancelable(false);
         alert = builder.create();
+
 
 //        view_custom.findViewById(R.id.btn_cancle).setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -75,6 +82,30 @@ public class MainActivity extends AppCompatActivity {
                 //显示对话框
             }
         });
+    }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menu.add(1,RED,4,"注销");
+        menu.add(1,GREEN,2,"解绑");
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        switch (id){
+            case RED:
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+            case GREEN:
+                Intent intent2 = new Intent(MainActivity.this, UnbundleActivity.class);
+                startActivity(intent2);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
