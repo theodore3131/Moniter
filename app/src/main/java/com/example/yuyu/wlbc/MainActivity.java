@@ -51,6 +51,21 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                             @Override
                                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                String string;
+                                                if(id==0){
+                                                    string="温度";
+                                                }
+                                                else if(id==1){
+                                                    string="PM2.5";
+                                                }
+                                                else{
+                                                    string="氧浓度";
+                                                }
+                                                Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("subject", string);
+                                                intent.putExtras(bundle);
+                                                startActivity(intent);
                                             }
                                         }
 

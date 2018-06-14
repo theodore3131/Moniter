@@ -32,11 +32,10 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".UnbundleActivity"
-            android:label="解绑">
-
-        </activity>
-
+        <activity
+            android:name=".UnbundleActivity"
+            android:label="解绑" />
+        <activity android:name=".ShowActivity"></activity>
     </application>
 
 </manifest>
