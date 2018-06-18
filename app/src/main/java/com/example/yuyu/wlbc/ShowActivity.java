@@ -31,7 +31,6 @@ public class ShowActivity extends AppCompatActivity {
             public void run() {
                 try {
                     // 创建Socket对象 & 指定服务端的IP 及 端口号
-
                     ObjectOutputStream oos = MySocket.getOos();
 //                    String str = "read"+' '+bundle.getInt("mail_id");
                     String str="type: askForData\r\n"+"data_type: 1\r\n"+"page_number: 1";
