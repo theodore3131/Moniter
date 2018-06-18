@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     final private int RED = 110;
     final private int GREEN = 111;
-    private ArrayList<String> data = new ArrayList<String>(){{add("温度:20℃");add("PM2.5:低");add("氧浓度:20％");}};
+    private ArrayList<String> data = new ArrayList<String>(){{add("温度:20℃");add("PM2.5:低");add("血氧浓度:20％");}};
 
 
     @Override
