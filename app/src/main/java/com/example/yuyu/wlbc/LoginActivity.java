@@ -30,8 +30,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -62,6 +72,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+
+    private String email;
+    private String password;
+
+    Socket socket;
+    ObjectOutputStream oos;
+    ObjectInputStream ois;
+    private PrintWriter pw;
+    private BufferedReader br;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,9 +174,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        email = mEmailView.getText().toString();
 
-        String password = mPasswordView.getText().toString();
+        password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -187,9 +206,38 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+//            showProgress(true);
+//            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask.execute((Void) null);
+            Thread a = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Simulate network access.
+                        socket = MySocket.getInstance();
+                        oos = MySocket.getOos();
+                        ois = MySocket.getOis();
+                        String str = "type:login\r\nusername:" + email + "\r\npassword:" + password;
+                        oos.writeObject(str);
+                        oos.flush();
+                        byte[] buf = new byte[2048];
+                        int count = socket.getInputStream().read(buf);
+                        String result = new String(buf, 0, count);
+                        System.out.println("hhhhhllllllllllllllllllhh");
+                        //                Gson gson=new Gson();
+                        //                User user=gson.fromJson(result,User.class);
+                    } catch (IOException e) {
+                    }
+                }
+                });
+            a.start();
+
+            try {
+                a.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+           // System.out.println("hhhhhllllllllllllllllllhh");
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -313,8 +361,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                socket = MySocket.getInstance();
+                oos = MySocket.getOos();
+                ois= MySocket.getOis();
+                String str="type:login\r\nusername:"+mEmail+"\r\npassword:"+mPassword;
+                oos.writeObject(str);
+                oos.flush();
+                byte[] buf = new byte[2048];
+                int count = socket.getInputStream().read(buf);
+                String result= new String(buf,0,count);
+                System.out.print("hhhhhhh");
+//                Gson gson=new Gson();
+//                User user=gson.fromJson(result,User.class);
+            } catch (IOException e) {
                 return false;
             }
 
