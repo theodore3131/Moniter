@@ -31,10 +31,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -77,8 +80,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private String password;
 
     Socket socket;
-    ObjectOutputStream oos;
-    ObjectInputStream ois;
+    InputStream ins;
+    OutputStream ous;
     private PrintWriter pw;
     private BufferedReader br;
 
@@ -193,10 +196,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if(email.length()<6){
-            mEmailView.setError(getString(R.string.error_length_email));
-            focusView = mEmailView;
-            cancel = true;
         }
 
         if (cancel) {
@@ -215,16 +214,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     try {
                         // Simulate network access.
                         socket = MySocket.getInstance();
-                        oos = MySocket.getOos();
-                        ois = MySocket.getOis();
-                        String str = "type:login\r\nusername:" + email + "\r\npassword:" + password;
-                        oos.writeObject(str);
-                        oos.flush();
+                        ins = MySocket.getIns();
+                        ous = MySocket.getOus();
+                        String str = "type:login\r\nusername:" + email + "\r\npassword:" + password+"\r\n\r\n";
+                        ous.write(str.getBytes());
+                        ous.flush();
+
                         byte[] buf = new byte[2048];
-                        int count = socket.getInputStream().read(buf);
-                        String result = new String(buf, 0, count);
-                        System.out.println("hhhhhllllllllllllllllllhh");
-                        //                Gson gson=new Gson();
+//                        int count = ins.read(buf);
+                        DataInputStream dins = new DataInputStream(ins);
+                        int count = dins.read(buf);
+//                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(ins));
+//
+                        String result = new String(buf,0,count);
+                        System.out.println(result);
+//                                        Gson gson=new Gson();
                         //                User user=gson.fromJson(result,User.class);
                     } catch (IOException e) {
                     }
@@ -248,7 +252,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() >= 3;
     }
 
     /**
@@ -358,24 +362,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                socket = MySocket.getInstance();
-                oos = MySocket.getOos();
-                ois= MySocket.getOis();
-                String str="type:login\r\nusername:"+mEmail+"\r\npassword:"+mPassword;
-                oos.writeObject(str);
-                oos.flush();
-                byte[] buf = new byte[2048];
-                int count = socket.getInputStream().read(buf);
-                String result= new String(buf,0,count);
-                System.out.print("hhhhhhh");
-//                Gson gson=new Gson();
-//                User user=gson.fromJson(result,User.class);
-            } catch (IOException e) {
-                return false;
-            }
 
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");

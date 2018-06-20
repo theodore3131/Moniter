@@ -30,6 +30,7 @@ public class ShowActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
+
                     // 创建Socket对象 & 指定服务端的IP 及 端口号
                     ObjectOutputStream oos = MySocket.getOos();
 //                    String str = "read"+' '+bundle.getInt("mail_id");

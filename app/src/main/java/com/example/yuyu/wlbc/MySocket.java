@@ -1,18 +1,22 @@
 package com.example.yuyu.wlbc;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 class MySocket extends Socket {
     private static MySocket socket = null;
-    private static final String host = "47.106.157.18";
-    private static final int port = 9091;
+    private static final String host = "120.79.237.210";
+    private static final int port = 5555;
 
     private static ObjectInputStream ois = null;
     private static ObjectOutputStream oos = null;
 
+    private static InputStream ins = null;
+    private static OutputStream ous = null;
     static MySocket getInstance() throws IOException {
         if (socket == null) {
             socket = new MySocket(host, port);
@@ -36,5 +40,19 @@ class MySocket extends Socket {
             oos = new ObjectOutputStream(socket.getOutputStream());
         }
         return oos;
+    }
+
+    public static InputStream getIns() throws IOException {
+        if (ins==null) {
+            ins = socket.getInputStream();
+        }
+        return ins;
+    }
+
+    public static OutputStream getOus() throws IOException {
+        if (ous==null) {
+            ous = socket.getOutputStream();
+        }
+        return ous;
     }
 }
