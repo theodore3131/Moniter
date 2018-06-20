@@ -30,6 +30,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -227,9 +229,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(ins));
 //
                         String result = new String(buf,0,count);
-                        System.out.println(result);
-//                                        Gson gson=new Gson();
-                        //                User user=gson.fromJson(result,User.class);
+//                        System.out.println(result);
+                        Gson gson=new Gson();
+                        User user=gson.fromJson(result,User.class);
+                        System.out.println(user.getUsername());
                     } catch (IOException e) {
                     }
                 }
