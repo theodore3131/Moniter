@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -29,6 +30,7 @@ public class ShowActivity extends AppCompatActivity {
     InputStream ins;
     OutputStream ous;
     String result=new String();
+    ArrayList<String> strings=new ArrayList<String>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +40,7 @@ public class ShowActivity extends AppCompatActivity {
         final String subject=bundle.getString("subject");
         final String userId=bundle.getString("userId");
         final String deviceId=bundle.getString("deviceId");
-        this.setTitle(subject+userId+deviceId);
+        this.setTitle(subject+" 用户id:"+userId+" 设备id:"+deviceId);
 
 
         // 利用线程池直接开启一个线程 & 执行该线程
@@ -73,17 +75,23 @@ public class ShowActivity extends AppCompatActivity {
                         Log.e("Json", result);
 
 
-//                           JSONObject jsonObject1 = new JSONObject(result);
+                    try {
+                        JSONArray jsonArray = new JSONArray(result);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            //取出name
+                            strings.add("数值:"+jsonObject.getString("dataValue")+
+                            '\n'+"场景:"+jsonObject.getString("sceneId")+
+                            '\n'+"时间:"+jsonObject.getString("time"));
 
-//                            JSONArray jsonArray = new JSONArray(result);
+                        }
+                    } catch (JSONException e) {
+                        System.out.println("popooooooooooooo");
+                    }
 
-//                           for (int i = 0; i < jsonArray.length(); i++) {
-//                               JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                               //取出name
-//                               int a=jsonObject.getInt("dataId");
-//                               datavalue= String.valueOf(a);
-//                               System.out.println(datavalue);
-//                           }
+//
+
+
 
 
 
@@ -105,8 +113,8 @@ public class ShowActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        ArrayList<String> data = new ArrayList<String>(){{add(result);}};
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(ShowActivity.this, android.R.layout.simple_list_item_1, data);
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(ShowActivity.this, android.R.layout.simple_list_item_1, strings);
         final ListView listView =  findViewById(R.id.show);
         listView.setAdapter(adapter);
 
