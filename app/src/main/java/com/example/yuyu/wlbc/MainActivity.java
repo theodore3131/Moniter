@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     private ArrayList<String> data = new ArrayList<String>(){{add("血氧");add("温度");add("PM2.5");}};
     String result =new String();
     User user;
+    ArrayList<String> deviceArray = new ArrayList<>();
     ArrayList<JSONObject> jsonObjects=new ArrayList<JSONObject>();
     ArrayList<JSONObject> jsonObjects2=new ArrayList<JSONObject>();
     public Handler handler = new Handler() {
@@ -195,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
             case GREEN:
                 Intent intent2 = new Intent(MainActivity.this, UnbundleActivity.class);
                 intent2.putExtra("user",user);
+                intent2.putExtra("deviceArray",deviceArray);
                 startActivity(intent2);
                 break;
         }
@@ -262,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                     if(jsonObjects.get(i).getString("deviceType").equals("3")){
                         data.add(2,"PM2.5："+jsonObjects.get(i).getString("dataValue")
                                 +"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        deviceArray.add(jsonObjects.get(i).getString("deviceId"));
                         if(jsonObjects.get(i).getString("warn").equals("true")){
                             string4="true";
                         }
@@ -270,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                     }
                     if(jsonObjects.get(i).getString("deviceType").equals("1")){
                         data.add(0,"血氧："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        deviceArray.add(jsonObjects.get(i).getString("deviceId"));
                         data.remove(1);
                         if(jsonObjects.get(i).getString("warn").equals("true")){
                             string4="true";
@@ -277,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                     }
                     if(jsonObjects.get(i).getString("deviceType").equals("2")){
                         data.add(1,"温度："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        deviceArray.add(jsonObjects.get(i).getString("deviceId"));
                         data.remove(2);
                         if(jsonObjects.get(i).getString("warn").equals("true")){
                             string4="true";

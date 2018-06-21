@@ -1,5 +1,6 @@
 package com.example.yuyu.wlbc;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +19,8 @@ import java.util.ArrayList;
 
 public class UnbundleActivity extends AppCompatActivity {
     //private String[] data = { "Apple", "Banana", "Orange", "Watermelon"};
-    private ArrayList<String> data = new ArrayList<String>(){{add("123");add("456");}};
+    private ArrayList<String> data;
+
     User user;
 
     @Override
@@ -26,6 +28,7 @@ public class UnbundleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unbundle);
         user = (User)getIntent().getSerializableExtra("user");
+        data = getIntent().getStringArrayListExtra("deviceArray");
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(UnbundleActivity.this, android.R.layout.simple_list_item_1, data);
         final ListView listView = (ListView) findViewById(R.id.unbundle);
         listView.setAdapter(adapter);
@@ -46,7 +49,7 @@ public class UnbundleActivity extends AppCompatActivity {
                                 ous.flush();
 
                                 byte[] buf = new byte[2048];
-//
+
                                 DataInputStream dins = new DataInputStream(ins);
                                 int count = dins.read(buf);
 
