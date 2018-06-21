@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -32,19 +34,35 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Runnable{
     private AlertDialog alert = null;
     private AlertDialog.Builder builder = null;
     private Context mContext;
     private boolean[] checkItems;
     private View view_custom;
+    DataInputStream dins;
 
+    ArrayAdapter<String> adapter;
+    ListView listView;
+    InputStream ins;
     final private int RED = 110;
     final private int GREEN = 111;
     private ArrayList<String> data = new ArrayList<String>(){{add("血氧");add("温度");add("PM2.5");}};
     String result =new String();
     User user;
     ArrayList<JSONObject> jsonObjects=new ArrayList<JSONObject>();
+    ArrayList<JSONObject> jsonObjects2=new ArrayList<JSONObject>();
+    public Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            if (msg.what == 0x123) {
+                adapter.notifyDataSetChanged();
+                jsonObjects.clear();
+            }
+        }
+
+        ;
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         user = (User)getIntent().getSerializableExtra("user");
+        run3();
+
         Thread a=new Thread(new Runnable(){
             @Override
             public void run() {
@@ -61,34 +81,10 @@ public class MainActivity extends AppCompatActivity {
                     try {
 
                         // 创建Socket对象 & 指定服务端的IP 及 端
-                        InputStream ins=MySocket.getIns();
-                        byte[] buf = new byte[2048];
-                        DataInputStream dins = new DataInputStream(ins);
-                        int count = dins.read(buf);
-                        result= new String(buf,0,count);
+                         ins=MySocket.getIns();
+                         dins = new DataInputStream(ins);
+                        new Thread(MainActivity.this).start();
 
-                        Log.e("Json", result);
-                        try {
-
-                            int j=0;
-                           for (int i = 0; i < result.length(); i++) {
-                               if(result.charAt(i)=='}'){
-                                   JSONObject jsonObject1 = new JSONObject(result.substring(j,i+1));
-                                   jsonObjects.add(jsonObject1);
-                                   if(i!=result.length()-1){
-                                       j=i+1;
-                                   }
-                               }
-//                               JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                               //取出name
-//                               int a=jsonObject.getInt("dataId");
-//                               datavalue= String.valueOf(a);
-//                               System.out.println(datavalue);
-                           }
-
-                        }catch (Exception e) {
-
-                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -102,101 +98,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for(int i=0;i<jsonObjects.size();i++){
 
-            try {
 
-                if(jsonObjects.get(i).getString("deviceType").equals("3")){
-                    data.add(2,"PM2.5："+jsonObjects.get(i).getString("dataValue")
-                                +"\n设备id："+jsonObjects.get(i).getString("deviceId"));
-                    data.remove(3);
-                }
-                if(jsonObjects.get(i).getString("deviceType").equals("1")){
-                    data.add(0,"血氧："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
-                    data.remove(1);
-                }
-                if(jsonObjects.get(i).getString("deviceType").equals("2")){
-                    data.add(1,"温度："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
-                    data.remove(2);
-                }
-            } catch (JSONException e) {
-                System.out.println("cnmmmm");
-            }
-        }
-
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, data);
-        final ListView listView = (ListView) findViewById(R.id.main);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                            @Override
-                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                String string,string2="",string3="";
-
-                                                if(id==0&&!data.get(0).equals("血氧")){
-                                                    string="血氧";
-                                                    for(int i=0;i<jsonObjects.size();i++){
-                                                        try {
-                                                            if(jsonObjects.get(i).getString("deviceType").equals("1")){
-                                                                string2=jsonObjects.get(i).getString("userId");
-                                                                string3=jsonObjects.get(i).getString("deviceId");
-                                                            }
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("subject", string);
-                                                    bundle.putString("userId",string2);
-                                                    bundle.putString("deviceId",string3);
-                                                    intent.putExtras(bundle);
-                                                    startActivity(intent);
-                                                }
-                                                else if(id==1&&!data.get(1).equals("温度")){
-                                                    string="温度";
-                                                    for(int i=0;i<jsonObjects.size();i++){
-                                                        try {
-                                                            if(jsonObjects.get(i).getString("deviceType").equals("2")){
-                                                                string2=jsonObjects.get(i).getString("userId");
-                                                                string3=jsonObjects.get(i).getString("deviceId");
-                                                            }
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("subject", string);
-                                                    bundle.putString("userId",string2);
-                                                    bundle.putString("deviceId",string3);
-                                                    intent.putExtras(bundle);
-                                                    startActivity(intent);
-                                                }
-                                                else if(id==2&&!data.get(2).equals("PM2.5")){
-                                                    string="PM2.5";
-                                                    for(int i=0;i<jsonObjects.size();i++){
-                                                        try {
-                                                            if(jsonObjects.get(i).getString("deviceType").equals("3")){
-                                                                string2=jsonObjects.get(i).getString("userId");
-                                                                string3=jsonObjects.get(i).getString("deviceId");
-                                                            }
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("subject", string);
-                                                    bundle.putString("userId",string2);
-                                                    bundle.putString("deviceId",string3);
-                                                    intent.putExtras(bundle);
-                                                    startActivity(intent);
-                                                }
-
-                                            }
-                                        }
-
-        );
 
 
         builder = new AlertDialog.Builder(mContext);
@@ -229,17 +132,7 @@ public class MainActivity extends AppCompatActivity {
                             Socket socket = new Socket("120.79.237.210",5555);
                             InputStream ins = socket.getInputStream();
                             OutputStream ous = socket.getOutputStream();
-                            System.out.println(user.getUsername()+user.getToken());
-                            ous.write(query.getBytes());
-                            ous.flush();
 
-                            byte[] buf = new byte[2048];
-//
-                            DataInputStream dins = new DataInputStream(ins);
-                            int count = dins.read(buf);
-
-                            String result = new String(buf,0,count);
-                            System.out.println(result);
 
                         } catch (IOException e) {
 
@@ -294,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
         switch (id){
             case RED:
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                MySocket.close22();
                 startActivity(intent);
                 finish();
                 break;
@@ -306,4 +200,158 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void run() {
+
+        while (true){
+
+            if(MySocket.getConnected()){
+                System.out.print("5555");
+                if(!MySocket.isOutputDown()){
+                    byte[] buf = new byte[2048];
+
+                    int count = 0;
+                    try {
+                        count = dins.read(buf);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    result= new String(buf,0,count);
+
+                    Log.e("Json", result);
+                    if(!result.contains("name")) {
+                        System.out.println("name");
+                        try {
+
+                            int j = 0;
+                            for (int i = 0; i < result.length(); i++) {
+                                if (result.charAt(i) == '}') {
+                                    JSONObject jsonObject1 = new JSONObject(result.substring(j, i + 1));
+                                    jsonObjects.add(jsonObject1);
+                                    if (i != result.length() - 1) {
+                                        j = i + 1;
+                                    }
+                                }
+//                               JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                               //取出name
+//                               int a=jsonObject.getInt("dataId");
+//                               datavalue= String.valueOf(a);
+//                               System.out.println(datavalue);
+                            }
+
+                        } catch (Exception e) {
+                            System.out.println("Pppppppppppppppppppppp");
+                        }
+                    }
+                    run2();
+                }
+
+            }
+
+        }
+    }
+
+    public void run2(){
+        System.out.println(jsonObjects.size());
+        if(jsonObjects.size()>0){
+            for(int i=0;i<jsonObjects.size();i++){
+
+                try {
+                    if(jsonObjects.get(i).getString("deviceType").equals("3")){
+                        data.add(2,"PM2.5："+jsonObjects.get(i).getString("dataValue")
+                                +"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        data.remove(3);
+                    }
+                    if(jsonObjects.get(i).getString("deviceType").equals("1")){
+                        data.add(0,"血氧："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        data.remove(1);
+                    }
+                    if(jsonObjects.get(i).getString("deviceType").equals("2")){
+                        data.add(1,"温度："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        data.remove(2);
+                    }
+                } catch (JSONException e) {
+                    System.out.println("cnmmmm");
+                }
+            }
+        }
+        jsonObjects2=new ArrayList<JSONObject>(jsonObjects);
+        handler.sendEmptyMessage(0x123);
+
+    }
+    public void run3(){
+        adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, data);
+        listView = (ListView) findViewById(R.id.main);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                            @Override
+                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                String string,string2="",string3="";
+
+                                                if(id==0&&!data.get(0).equals("血氧")){
+                                                    string="血氧";
+                                                    for(int i=0;i<jsonObjects2.size();i++){
+                                                        try {
+                                                            if(jsonObjects2.get(i).getString("deviceType").equals("1")){
+                                                                string2=jsonObjects2.get(i).getString("userId");
+                                                                string3=jsonObjects2.get(i).getString("deviceId");
+                                                            }
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("subject", string);
+                                                    bundle.putString("userId",string2);
+                                                    bundle.putString("deviceId",string3);
+                                                    intent.putExtras(bundle);
+                                                    startActivity(intent);
+                                                }
+                                                else if(id==1&&!data.get(1).equals("温度")){
+                                                    string="温度";
+                                                    for(int i=0;i<jsonObjects2.size();i++){
+                                                        try {
+                                                            if(jsonObjects2.get(i).getString("deviceType").equals("2")){
+                                                                string2=jsonObjects2.get(i).getString("userId");
+                                                                string3=jsonObjects2.get(i).getString("deviceId");
+                                                            }
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("subject", string);
+                                                    bundle.putString("userId",string2);
+                                                    bundle.putString("deviceId",string3);
+                                                    intent.putExtras(bundle);
+                                                    startActivity(intent);
+                                                }
+                                                else if(id==2&&!data.get(2).equals("PM2.5")){
+                                                    string="PM2.5";
+                                                    for(int i=0;i<jsonObjects2.size();i++){
+                                                        try {
+                                                            if(jsonObjects2.get(i).getString("deviceType").equals("3")){
+                                                                string2=jsonObjects2.get(i).getString("userId");
+                                                                string3=jsonObjects2.get(i).getString("deviceId");
+                                                            }
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("subject", string);
+                                                    bundle.putString("userId",string2);
+                                                    bundle.putString("deviceId",string3);
+                                                    intent.putExtras(bundle);
+                                                    startActivity(intent);
+                                                }
+
+                                            }
+                                        }
+
+        );
+    }
 }

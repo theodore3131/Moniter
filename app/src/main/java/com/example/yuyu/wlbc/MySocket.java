@@ -55,4 +55,23 @@ class MySocket extends Socket {
         }
         return ous;
     }
+    public static boolean getConnected(){
+        if(socket.isConnected()){
+            return  true;
+        }
+        return  false;
+    }
+    public static boolean isOutputDown(){
+        if(socket.isInputShutdown()){
+            return true;
+        }
+        return false;
+    }
+    public static void close22(){
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
