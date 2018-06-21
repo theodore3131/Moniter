@@ -1,9 +1,10 @@
 package com.example.yuyu.wlbc;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-public class User {
+public class User implements Serializable {
     private int userId;
     private String username;
     private String password;

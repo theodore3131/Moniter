@@ -237,6 +237,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             User user=gson.fromJson(result,User.class);
                             System.out.println(user.getUsername());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.putExtra("user",user);
                             startActivity(intent);
                             success=true;
                             finish();

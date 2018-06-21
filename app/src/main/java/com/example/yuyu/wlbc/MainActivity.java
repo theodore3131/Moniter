@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     final private int GREEN = 111;
     private ArrayList<String> data = new ArrayList<String>(){{add("血氧");add("温度");add("PM2.5");}};
     String result =new String();
+    User user;
     ArrayList<JSONObject> jsonObjects=new ArrayList<JSONObject>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        user = (User)getIntent().getSerializableExtra("user");
         Thread a=new Thread(new Runnable(){
             @Override
             public void run() {
@@ -66,8 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.e("Json", result);
                         try {
-
-
 
                             int j=0;
                            for (int i = 0; i < result.length(); i++) {
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                            }
 
                         }catch (Exception e) {
-                            System.out.println("cnmmmmmmmmmmm");
+
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -219,6 +220,40 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 EditText editText=view_custom.findViewById(R.id.dialog);
+                final String query = "type:bind\r\nusername:"+user.getUsername()+"\r\ndeviceId:"+editText.getText().toString();
+                Thread a = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Simulate network access.
+                            Socket socket = new Socket("120.79.237.210",5555);
+                            InputStream ins = socket.getInputStream();
+                            OutputStream ous = socket.getOutputStream();
+                            System.out.println(user.getUsername()+user.getToken());
+                            ous.write(query.getBytes());
+                            ous.flush();
+
+                            byte[] buf = new byte[2048];
+//
+                            DataInputStream dins = new DataInputStream(ins);
+                            int count = dins.read(buf);
+
+                            String result = new String(buf,0,count);
+                            System.out.println(result);
+
+                        } catch (IOException e) {
+
+                        }
+                    }
+                });
+                a.start();
+
+                try {
+                    a.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 Toast.makeText(getApplicationContext(), "绑定成功"+editText.getText().toString(), Toast.LENGTH_SHORT).show();
                 alert.dismiss();
             }
@@ -264,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case GREEN:
                 Intent intent2 = new Intent(MainActivity.this, UnbundleActivity.class);
+                intent2.putExtra("user",user);
                 startActivity(intent2);
                 break;
         }
