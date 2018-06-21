@@ -29,6 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -77,16 +78,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-
+    boolean cancel;
     private String email;
     private String password;
-
+    Thread a;
+    Boolean success =false;
     Socket socket;
     InputStream ins;
     OutputStream ous;
     private PrintWriter pw;
     private BufferedReader br;
-
+    View focusView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,8 +185,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        View focusView = null;
+        cancel = false;
+         focusView = null;
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
@@ -210,7 +212,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //            showProgress(true);
 //            mAuthTask = new UserLoginTask(email, password);
 //            mAuthTask.execute((Void) null);
-            Thread a = new Thread(new Runnable() {
+            a = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -230,9 +232,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //
                         String result = new String(buf,0,count);
 //                        System.out.println(result);
-                        Gson gson=new Gson();
-                        User user=gson.fromJson(result,User.class);
-                        System.out.println(user.getUsername());
+                        try {
+                            Gson gson=new Gson();
+                            User user=gson.fromJson(result,User.class);
+                            System.out.println(user.getUsername());
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            success=true;
+                            finish();
+                        }
+                        catch (Exception e ){
+                            System.out.println("密码错误");
+                            success=false;
+                        }
                     } catch (IOException e) {
                     }
                 }
@@ -244,10 +256,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-           // System.out.println("hhhhhllllllllllllllllllhh");
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            if(!success){
+            Toast.makeText(getApplicationContext(), "密码错误", Toast.LENGTH_SHORT).show();}
         }
     }
 
