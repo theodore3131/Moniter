@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -254,25 +255,41 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     public void run2(){
         System.out.println(jsonObjects.size());
         if(jsonObjects.size()>0){
+            String string4="false";
             for(int i=0;i<jsonObjects.size();i++){
 
                 try {
                     if(jsonObjects.get(i).getString("deviceType").equals("3")){
                         data.add(2,"PM2.5："+jsonObjects.get(i).getString("dataValue")
                                 +"\n设备id："+jsonObjects.get(i).getString("deviceId"));
+                        if(jsonObjects.get(i).getString("warn").equals("true")){
+                            string4="true";
+                        }
+
                         data.remove(3);
                     }
                     if(jsonObjects.get(i).getString("deviceType").equals("1")){
                         data.add(0,"血氧："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
                         data.remove(1);
+                        if(jsonObjects.get(i).getString("warn").equals("true")){
+                            string4="true";
+                        }
                     }
                     if(jsonObjects.get(i).getString("deviceType").equals("2")){
                         data.add(1,"温度："+jsonObjects.get(i).getString("dataValue")+"\n设备id："+jsonObjects.get(i).getString("deviceId"));
                         data.remove(2);
+                        if(jsonObjects.get(i).getString("warn").equals("true")){
+                            string4="true";
+                        }
                     }
                 } catch (JSONException e) {
                     System.out.println("cnmmmm");
                 }
+            }
+            if(string4.equals("true")){
+                Vibrator vibrator = (Vibrator) getSystemService(mContext.VIBRATOR_SERVICE);
+                vibrator.vibrate(1000);
+
             }
         }
         jsonObjects2=new ArrayList<JSONObject>(jsonObjects);
@@ -295,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                                                             if(jsonObjects2.get(i).getString("deviceType").equals("1")){
                                                                 string2=jsonObjects2.get(i).getString("userId");
                                                                 string3=jsonObjects2.get(i).getString("deviceId");
+
                                                             }
                                                         } catch (JSONException e) {
                                                             e.printStackTrace();
